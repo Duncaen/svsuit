@@ -1,0 +1,114 @@
+
+
+init
+	svwatch /service (exec)
+		run (exec)
+			svdir .
+				foo
+				bar
+
+svwatch /service
+	svdir /service
+		svwatch /service/foo
+			foo
+		svwatch /service/bar
+			bar
+		svwatch /service/bar/log
+			logger
+	logger
+
+service/run
+service/finish
+service/supervisor
+service/log/
+service/log/run
+service/log/finish
+service/log/supervisor
+service/socket/name/run
+
+services/
+	svdir/
+		[run|once]
+		finish
+		down
+		supervisor
+		log/ (svdir)
+		needs/
+			[socket|reboot|halt|$svdir]
+			...
+		wants/
+			[socket|reboot|halt|$svdir]
+			...
+		socket/
+			[fd|name]
+			...
+		supervise/
+			control
+			lock
+			ok
+			pid
+			stat
+			status
+		control/
+			[]
+
+svdir /run/sv/current
+/service > /run/sv/current
+/run/sv/current
+/run/sv/default
+/run/sv/single
+
+/etc/sv/
+	sockets/
+		run -
+	filesystem/
+		run - mount
+		finish - umoumnt
+	swap/
+		run - swapon
+		finish - swapoff
+
+init
+	- reap
+	- stage 1-3
+	- shutdown/reboot
+
+svdir ${dir:=/service}
+	chdir($dir)
+	fifo(./in)
+	fork {
+		exec("./run")
+		run:
+			echo "filesystem" >>./in
+			echo "swap" >>./in
+			echo "*/" >>./in
+	}
+	while read ./in = $job {
+		chdir($job)
+		fork {
+			exec("svrun")
+		}
+	}
+	fork {
+		exec("./finish")
+		finish:
+			
+	}
+	waitpid($finish)
+	exit($?)
+
+/service/run
+
+
+/bin/svrun
+	fork {
+		exec(./run)
+	}
+	while (waitpid()) {
+
+	}
+	fork {
+		exec(./finish)
+	}
+
+svctl

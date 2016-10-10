@@ -1,0 +1,13 @@
+-./libtai.a.do
+-./default.a.do
+-./default.do
+-./../default.a.do
+-./../default.do
+-./../../default.a.do
+-./../../default.do
+-./../../../default.a.do
+-./../../../default.do
+-./../../../../default.a.do
+-./../../../../default.do
+-./../../../../../default.a.do
+-./../../../../../default.do
